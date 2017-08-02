@@ -1,27 +1,30 @@
 SELECT DISTINCT
 
-EVENT_ID,
-POT_ID, 
+CPP_1.EVENT_ID AS EVENT_ID,
+CPP_1.POT_ID AS POT_ID, 
   
-  NZ(
   NZ(DSum("[FREQUENCY]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
 	AND [POT_ID] = '" & [POT_ID] & "'
 	AND CARAPACE_LENGTH_MM >= 32"),0)
 	/
-	NZ(DSum("[FREQUENCY]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
+	DSum("[FREQUENCY]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
 	AND [POT_ID] = '" & [POT_ID] & "'
-	AND CARAPACE_LENGTH_MM >= -1"),0),0)
+	AND CARAPACE_LENGTH_MM >= -1")
 	AS propLgCnt_awl,
 	
-  NZ(
   NZ(DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
 	AND [POT_ID] = '" & [POT_ID] & "'
 	AND CARAPACE_LENGTH_MM >= 32"),0)
 	/
-	NZ(DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
+	DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
 	AND [POT_ID] = '" & [POT_ID] & "'
-	AND CARAPACE_LENGTH_MM >= -1"),0),0)
+	AND CARAPACE_LENGTH_MM >= -1")
 	AS propLgWt_awl	
 
-FROM 
-CPP_4
+FROM CPP_1
+
+LEFT JOIN
+CPP_4 ON (CPP_1.POT_ID = CPP_4.POT_ID)
+ AND (CPP_1.EVENT_ID = CPP_4.EVENT_ID)
+
+WHERE (((CPP_1.FK_GEAR_PERFORMANCE_CODE)="01"));
