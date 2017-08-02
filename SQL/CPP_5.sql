@@ -3,22 +3,22 @@ SELECT DISTINCT
 EVENT_ID,
 POT_ID, 
 
-DSum("[FREQUENCY]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
+  NZ(DSum("[FREQUENCY]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
 	AND [POT_ID] = '" & [POT_ID] & "'
-	AND CARAPACE_LENGTH_MM >= 32")
+	AND CARAPACE_LENGTH_MM >= 32"),0)
 	/
-	DSum("[FREQUENCY]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
+	NZ(DSum("[FREQUENCY]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
 	AND [POT_ID] = '" & [POT_ID] & "'
-	AND CARAPACE_LENGTH_MM >= -1")
+	AND CARAPACE_LENGTH_MM >= -1"),0)
 	AS propLgCnt_awl,
 	
-DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
+  NZ(DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
 	AND [POT_ID] = '" & [POT_ID] & "'
-	AND CARAPACE_LENGTH_MM >= 32")
+	AND CARAPACE_LENGTH_MM >= 32"),0)
 	/
-	DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
+	NZ(DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
 	AND [POT_ID] = '" & [POT_ID] & "'
-	AND CARAPACE_LENGTH_MM >= -1")
+	AND CARAPACE_LENGTH_MM >= -1"),0)
 	AS propLgWt_awl	
 
 FROM 
