@@ -1,13 +1,10 @@
-############
-## CPUE   ##
-############
+## CPUE ####
 # Calculates CATCH and CPUE for both Large and Alls from PWS spot shrimp pot survey. Used for 2017 BOF report.
 # Josh Mumm 
 
 # PREP ----
 library(tidyverse)
 cpp <- read.csv('data/CPP.csv') 
-
 
 #rename vars 
 cpp %>% transmute(year = YEAR, 
@@ -31,7 +28,7 @@ cpp %>% transmute(year = YEAR,
       mu_all_cnt = tau_all_cnt/N,
       mu_all_kg = tau_all_kg/N,  
       var_all_cnt = sum((all_cnt - mu_all_cnt)^2)/N,
-      var_all_kg = sum((all_kg - mu_all_kg)^2)/N)  -> all_byYear
+      var_all_kg = sum((all_kg - mu_all_kg)^2)/N )  -> all_byYear
   #bySite
   cpp %>% group_by(year, Site) %>% 
     summarise ( 
@@ -39,9 +36,9 @@ cpp %>% transmute(year = YEAR,
       tau_all_cnt = sum(all_cnt), 
       tau_all_kg = sum(all_kg),
       mu_all_cnt = tau_all_cnt/N,
-      mu_all_kg = tau_all_kg/N,  
+      mu_all_kg = tau_all_kg/N, 
       var_all_cnt = sum((all_cnt - mu_all_cnt)^2)/N,
-      var_all_kg = sum((all_kg - mu_all_kg)^2)/N)  -> all_bySite
+      var_all_kg = sum((all_kg - mu_all_kg)^2)/N )  -> all_bySite
 
 ## LARGES ----
   # bySite 
@@ -54,14 +51,14 @@ cpp %>% transmute(year = YEAR,
         rh_kg  = sum(lrg_kg, na.rm = T)/sum(all_kg, na.rm = T),
         mu_lrg_cnt = rh_cnt * first(mu_all_cnt), 
         mu_lrg_kg  = rh_kg * first(mu_all_kg),
-        tau_lrg_cnt = mu_lrg_cnt * first(N),
-        tau_lrg_kg =  mu_lrg_kg * first(N), 
-        var_rh_cnt = sum((lrg_cnt - rh_cnt*all_cnt)^2, na.rm = T)/(n-1),
-        var_rh_kg  = sum((lrg_kg - rh_cnt*all_kg)^2, na.rm = T)/(n-1), 
+        tau_lrg_cnt = mu_lrg_cnt * N,
+        tau_lrg_kg =  mu_lrg_kg * N, 
+        var_rh_cnt = sum(((lrg_cnt - rh_cnt*all_cnt)^2), na.rm = T)/(n-1),
+        var_rh_kg  = sum(((lrg_kg - rh_cnt*all_kg)^2), na.rm = T)/(n-1), 
         var_mu_lrg_cnt = (N - n)/(N) * (var_rh_cnt/n), 
         var_mu_lrg_kg = (N - n)/(N) * (var_rh_kg/n), 
-        var_tau_lrg_cnt = var_mu_lrg_cnt * first(N)^2,
-        var_tau_lrg_kg = var_mu_lrg_kg * first(N)^2) -> large_bySite           
+        var_tau_lrg_cnt = var_mu_lrg_cnt * N^2,
+        var_tau_lrg_kg = var_mu_lrg_kg * N^2) -> large_bySite           
   
   #byYear 
     large_bySite %>% filter (Site != "11") %>% group_by (year) %>% 
@@ -70,16 +67,12 @@ cpp %>% transmute(year = YEAR,
         tau_lrg_cnt = sum(tau_lrg_cnt),
         tau_lrg_kg = sum(tau_lrg_kg),
         mu_lrg_cnt = tau_lrg_cnt / N,
-        mu_lrg_kg = tau_lrg_kg / N, 
-        var_tau_lrg_cnt = sum(var_tau_lrg_cnt, na.rm = T), 
-        var_tau_lrg_kg = sum(var_tau_lrg_kg, na.rm = T), 
+        mu_lrg_kg  = tau_lrg_kg / N, 
+        var_tau_lrg_cnt = sum(var_tau_lrg_cnt), 
+        var_tau_lrg_kg  = sum(var_tau_lrg_kg), 
         var_mu_lrg_cnt = var_tau_lrg_cnt/(N^2),
         var_mu_lrg_kg  = var_tau_lrg_kg/(N^2)) -> large_byYear
 ###############################################################################################
-  
-  
-  
-  
   
   
   
