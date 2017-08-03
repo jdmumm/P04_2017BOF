@@ -73,57 +73,59 @@ cpp %>% transmute(year = YEAR,
         var_mu_lrg_cnt = var_tau_lrg_cnt/(N^2),
         var_mu_lrg_kg  = var_tau_lrg_kg/(N^2)) -> large_byYear
 ###############################################################################################
-## errror checking.  compare to old output ----
-options(scipen = 999)
+## errror checking.  compare to old output  Not Complete----
+    options(scipen = 999)
+    
+    # ALLS      
+    old <- read.csv('data/temp/2016QueryOutput/QUERY_CPUE_ANNUAL_SUMMARY_all_170127.csv')
+    str(old)
+    str(all_byYear)
+    old %>% select (year = Year,
+                    N = Pot_Count,
+                    tau_all_cnt = Total_Spot_Count, 
+                    tau_all_kg = Total_Spot_Wt_KG, 
+                    mu_all_cnt = CPUE_All_Count,
+                    mu_all_kg = CPUE_All_KG
+                    ) -> o
+    
+    all_byYear[,1:6] -> n 
+    
+    left_join(n, by = "year" ) -> comp 
+    comp
+    str(comp)
+    comp[ , order(names(comp))] -> comp# reorder columns
+    
+    #calc difs 
+    o[,order(names(o))] -> o
+    n[,order(names(n))] -> n 
+    str(o)
+    str(n)
+    
+    dif_year <- o[,1:5] - n[,1:5] 
+    cbind(dif_year,year = o$year) -> dif_year
+    
+    per_dif_year <- 100* dif_year[,-6]/o[,-6]
+    cbind(per_dif_year,year = o$year) -> per_dif_year
+    
+    # Larges ####  
+    old %>% select (year = Year,
+                    N = Pot_Count,
+                    tau_lrg_cnt = Est_Ct_LG, 
+                    tau_lrg_kg = Est_Wt_Large, 
+                    mu_lrg_cnt = CPUE_Large_Count,
+                    mu_lrg_kg = CPUE_Large_KG) -> o_l
+    large_byYear[,1:6] -> n_l 
+    o_l[,order(names(o_l))] -> o_l
+    n_l[,order(names(n_l))] -> n_l 
+    str(o_l)
+    str(n_l)
+    
+    dif_year_l <- o_l[,1:5] - n_l[,1:5] 
+    cbind(dif_year_l,year = o_l$year) -> dif_year_l
+    
+    per_dif_year_l <- 100* dif_year_l[,-6]/o_l[,-6]
+    cbind(per_dif_year_l,year = o_l$year) -> per_dif_year_l
+    
+    summary(per_dif_year_l)
+    cpp %>% filter (Sample == "Sample", is.na(lrg_cnt)) %>% group_by (year) %>% summarize ( n())
 
-# ALLS ####     
-old <- read.csv('data/temp/2016QueryOutput/QUERY_CPUE_ANNUAL_SUMMARY_all_170127.csv')
-str(old)
-str(all_byYear)
-old %>% select (year = Year,
-                N = Pot_Count,
-                tau_all_cnt = Total_Spot_Count, 
-                tau_all_kg = Total_Spot_Wt_KG, 
-                mu_all_cnt = CPUE_All_Count,
-                mu_all_kg = CPUE_All_KG
-                ) -> o
-
-all_byYear[,1:6] -> n 
-
-left_join(n, by = "year" ) -> comp 
-comp
-str(comp)
-comp[ , order(names(comp))] -> comp# reorder columns
-
-#calc difs 
-o[,order(names(o))] -> o
-n[,order(names(n))] -> n 
-str(o)
-str(n)
-
-dif_year <- o[,1:5] - n[,1:5] 
-cbind(dif_year,year = o$year) -> dif_year
-
-per_dif_year <- 100* dif_year[,-6]/o[,-6]
-cbind(per_dif_year,year = o$year) -> per_dif_year
-
-# Larges ####  
-old %>% select (year = Year,
-                N = Pot_Count,
-                tau_lrg_cnt = Est_Ct_LG, 
-                tau_lrg_kg = Est_Wt_Large, 
-                mu_lrg_cnt = CPUE_Large_Count,
-                mu_lrg_kg = CPUE_Large_KG) -> o_l
-large_byYear[,1:6] -> n_l 
-o_l[,order(names(o_l))] -> o_l
-n_l[,order(names(n_l))] -> n_l 
-str(o_l)
-str(n_l)
-
-dif_year_l <- o_l[,1:5] - n_l[,1:5] 
-cbind(dif_year_l,year = o_l$year) -> dif_year_l
-
-per_dif_year_l <- 100* dif_year_l[,-6]/o_l[,-6]
-cbind(per_dif_year_l,year = o_l$year) -> per_dif_year_l
-
-summary(per_dif_year_l)
