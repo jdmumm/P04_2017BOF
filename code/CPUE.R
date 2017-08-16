@@ -117,14 +117,19 @@ cpp %>% transmute(year = YEAR,
     large_byYear[,1:6] -> n_l 
     o_l[,order(names(o_l))] -> o_l
     n_l[,order(names(n_l))] -> n_l 
-    str(o_l)
-    str(n_l)
     
     dif_year_l <- o_l[,1:5] - n_l[,1:5] 
     cbind(dif_year_l,year = o_l$year) -> dif_year_l
     
     per_dif_year_l <- 100* dif_year_l[,-6]/o_l[,-6]
     cbind(per_dif_year_l,year = o_l$year) -> per_dif_year_l
+    per_dif_year_l %>% transmute(year = year,
+                    mu_lrg_cnt = round(mu_lrg_cnt,1),
+                    mu_lrg_kg = round(mu_lrg_kg,1),
+                    tau_lrg_cnt = round(tau_lrg_cnt,1),
+                    tau_lrg_kg = round(tau_lrg_kg,1)) -> per_dif_year_l_r
+    view(per_dif_year_l)
+    
     
     summary(per_dif_year_l)
     cpp %>% filter (Sample == "Sample", is.na(lrg_cnt)) %>% group_by (year) %>% summarize ( n())
