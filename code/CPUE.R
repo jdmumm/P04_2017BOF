@@ -4,7 +4,7 @@
 
 ## PREP ----
 library(tidyverse)
-cpp <- read.csv('data/CPP.csv') 
+cpp <- read.csv('data/CPP_lessSamps.csv') 
 
 #rename vars 
 cpp %>% transmute(year = YEAR, 
