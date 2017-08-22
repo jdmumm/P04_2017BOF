@@ -128,7 +128,7 @@ cpp %>% transmute(year = YEAR,
                     mu_lrg_kg = round(mu_lrg_kg,1),
                     tau_lrg_cnt = round(tau_lrg_cnt,1),
                     tau_lrg_kg = round(tau_lrg_kg,1)) -> per_dif_year_l_r
-    view(per_dif_year_l)
+   
     
     
     summary(per_dif_year_l)
