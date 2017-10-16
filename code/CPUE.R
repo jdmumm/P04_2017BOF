@@ -4,7 +4,9 @@
 
 ## PREP ----
 library(tidyverse)
-cpp <- read.csv('data/CPP_lessSamps.csv') 
+cpp <- read.csv('data/CPP_lessSamps_b.csv') # _lessSamps_b is from temporaily correcting 
+  #sample pot indicator on potperformance for those pots labeled sample but w/out any awls
+  # and _b is from temporaily modifying cpp sqls to remove rounding in step 6 and remove pop blank count in 2. 
 
 #rename vars 
 cpp %>% transmute(year = YEAR, 
@@ -28,7 +30,8 @@ cpp %>% transmute(year = YEAR,
       mu_all_cnt = tau_all_cnt/N,
       mu_all_kg = tau_all_kg/N,  
       var_all_cnt = sum((all_cnt - mu_all_cnt)^2)/N,
-      var_all_kg = sum((all_kg - mu_all_kg)^2)/N )  -> all_byYear
+      var_all_kg = sum((all_kg - mu_all_kg)^2)/N ,
+      cv_all_kg = 100* (var_all_kg^.5)/mu_all_kg) -> all_byYear
   #bySite
   cpp %>% group_by(year, Site) %>% 
     summarise ( 
@@ -54,9 +57,9 @@ cpp %>% transmute(year = YEAR,
         tau_lrg_cnt = mu_lrg_cnt * N,
         tau_lrg_kg =  mu_lrg_kg * N, 
         var_rh_cnt = sum(((lrg_cnt - rh_cnt*all_cnt)^2), na.rm = T)/(n-1),
-        var_rh_kg  = sum(((lrg_kg - rh_cnt*all_kg)^2), na.rm = T)/(n-1), 
-        var_mu_lrg_cnt = (N - n)/(N) * (var_rh_cnt/n), 
-        var_mu_lrg_kg = (N - n)/(N) * (var_rh_kg/n), 
+        var_rh_kg  = sum(((lrg_kg - rh_kg*all_kg)^2), na.rm = T)/(n-1), 
+        var_mu_lrg_cnt =(var_rh_cnt/n), # fpc goes here
+        var_mu_lrg_kg = (var_rh_kg/n), # fpc goes here 
         var_tau_lrg_cnt = var_mu_lrg_cnt * N^2,
         var_tau_lrg_kg = var_mu_lrg_kg * N^2) -> large_bySite           
   
@@ -71,7 +74,8 @@ cpp %>% transmute(year = YEAR,
         var_tau_lrg_cnt = sum(var_tau_lrg_cnt), 
         var_tau_lrg_kg  = sum(var_tau_lrg_kg), 
         var_mu_lrg_cnt = var_tau_lrg_cnt/(N^2),
-        var_mu_lrg_kg  = var_tau_lrg_kg/(N^2)) -> large_byYear
+        var_mu_lrg_kg  = var_tau_lrg_kg/(N^2), 
+        cv_lrg_kg = 100*(sum(var_rh_kg)^.5)/mu_lrg_kg) -> large_byYear  # cv form might not be quite right
 ###############################################################################################
 ## errror checking.  compare to old output  Not Complete----
     options(scipen = 999)
@@ -90,7 +94,7 @@ cpp %>% transmute(year = YEAR,
     
     all_byYear[,1:6] -> n 
     
-    left_join(n, by = "year" ) -> comp 
+    o %>% left_join(n, by = "year" ) -> comp 
     comp
     str(comp)
     comp[ , order(names(comp))] -> comp# reorder columns
@@ -106,6 +110,11 @@ cpp %>% transmute(year = YEAR,
     
     per_dif_year <- 100* dif_year[,-6]/o[,-6]
     cbind(per_dif_year,year = o$year) -> per_dif_year
+    per_dif_year %>% transmute(year = year,
+                                 mu_lrg_cnt = round(mu_all_cnt,1),
+                                 mu_lrg_kg = round(mu_all_kg,1),
+                                 tau_lrg_cnt = round(tau_all_cnt,1),
+                                 tau_lrg_kg = round(tau_all_kg,1)) -> per_dif_year_r
     
     # Larges ####  
     old %>% select (year = Year,
