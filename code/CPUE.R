@@ -4,12 +4,16 @@
 
 ## PREP ----
 library(tidyverse)
-cpp <- read.csv('data/CPP_lessSamps_b.csv') # _lessSamps_b is from temporaily correcting 
+cpp <- read.csv('data/CPP_lessSamps_d.csv') # _lessSamps is from temporaily correcting 
   #sample pot indicator on potperformance for those pots labeled sample but w/out any awls
-  # and _b is from temporaily modifying cpp sqls to remove rounding in step 6 and remove pop blank count in 2. 
-
+  # and _b is from temporaily modifying cpp sqls to remove rounding in step 6 and remove pop blank weight from count in 2. 
+  # and _c is from temporalily changing sample pot indicator on potPerformance again,  from null to Sample for those pots with awl. Offered little improvement
+  # _d is same as b, after editing 2011 (removed cc recs wtih 0 count and weight - this shouldn't have made a dif).  More importantly i don't think _b fully removed
+        #estimating blank weights from CPP_2.  Fixed here for _d.   
+        # Plan to use _d.  ALLs - both tau and mu match old query for all years rounded to nearest .1 %.   Large Tau and Mu are < .7% dif for all years 
+        
 #rename vars 
-cpp %>% transmute(year = YEAR, 
+cpp %>% transmute(year = Year, 
                  Event = EVENT_ID, 
                  Site = as.factor(SITE_ID), 
                  Station = STATION, 
@@ -61,7 +65,8 @@ cpp %>% transmute(year = YEAR,
         var_mu_lrg_cnt =(var_rh_cnt/n), # fpc goes here
         var_mu_lrg_kg = (var_rh_kg/n), # fpc goes here 
         var_tau_lrg_cnt = var_mu_lrg_cnt * N^2,
-        var_tau_lrg_kg = var_mu_lrg_kg * N^2) -> large_bySite           
+        var_tau_lrg_kg = var_mu_lrg_kg * N^2, 
+        cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg) -> large_bySite           
   
   #byYear 
     large_bySite %>% filter (Site != "11") %>% group_by (year) %>% 
@@ -111,10 +116,10 @@ cpp %>% transmute(year = YEAR,
     per_dif_year <- 100* dif_year[,-6]/o[,-6]
     cbind(per_dif_year,year = o$year) -> per_dif_year
     per_dif_year %>% transmute(year = year,
-                                 mu_lrg_cnt = round(mu_all_cnt,1),
-                                 mu_lrg_kg = round(mu_all_kg,1),
-                                 tau_lrg_cnt = round(tau_all_cnt,1),
-                                 tau_lrg_kg = round(tau_all_kg,1)) -> per_dif_year_r
+                                 mu_all_cnt = round(mu_all_cnt,1),
+                                 mu_all_kg = round(mu_all_kg,1),
+                                 tau_all_cnt = round(tau_all_cnt,1),
+                                 tau_all_kg = round(tau_all_kg,1)) -> per_dif_year_r                                                       
     
     # Larges ####  
     old %>% select (year = Year,
@@ -128,10 +133,10 @@ cpp %>% transmute(year = YEAR,
     n_l[,order(names(n_l))] -> n_l 
     
     dif_year_l <- o_l[,1:5] - n_l[,1:5] 
-    cbind(dif_year_l,year = o_l$year) -> dif_year_l
+    cbind(dif_year_l,year = n_l$year) -> dif_year_l
     
-    per_dif_year_l <- 100* dif_year_l[,-6]/o_l[,-6]
-    cbind(per_dif_year_l,year = o_l$year) -> per_dif_year_l
+    per_dif_year_l <- 100* dif_year_l[,-6]/n_l[,-6]
+    cbind(per_dif_year_l,year = n_l$year) -> per_dif_year_l
     per_dif_year_l %>% transmute(year = year,
                     mu_lrg_cnt = round(mu_lrg_cnt,1),
                     mu_lrg_kg = round(mu_lrg_kg,1),
