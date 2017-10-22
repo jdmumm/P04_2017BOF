@@ -1,5 +1,5 @@
 ## CPUE ####
-# Calculates CATCH and CPUE for both Large and Alls from PWS spot shrimp pot survey. Used for 2017 BOF report.
+# Calculates CATCH and CPUE for both Large and Alls from PWS spot shrimp pot survey. Used for to calc variances for 2017 BOF report. Point ests from old queries.
 # Josh Mumm 
 
 ## PREP ----
@@ -33,9 +33,14 @@ cpp %>% transmute(year = Year,
       tau_all_kg = sum(all_kg),
       mu_all_cnt = tau_all_cnt/N,
       mu_all_kg = tau_all_kg/N,  
-      var_all_cnt = sum((all_cnt - mu_all_cnt)^2)/N,
-      var_all_kg = sum((all_kg - mu_all_kg)^2)/N ,
-      cv_all_kg = 100* (var_all_kg^.5)/mu_all_kg) -> all_byYear
+      var_all_cnt = sum((all_cnt - mu_all_cnt)^2)/(N-1), # 10/21 added -1 since treating as sample not pop now.  Leaving N as N not n for now. 
+      var_all_kg = sum((all_kg - mu_all_kg)^2)/(N-1) ,
+      sd_all_cnt = var_all_cnt^.5,
+      sd_all_kg = var_all_kg^.5,
+      se_all_cnt = sd_all_cnt/mu_all_cnt,
+      se_all_kg = sd_all_kg/mu_all_kg,
+      cv_all_cnt = 100* sd_all_cnt/mu_all_cnt,
+      cv_all_kg = 100* sd_all_kg/mu_all_kg) -> all_byYear
   #bySite
   cpp %>% group_by(year, Site) %>% 
     summarise ( 
@@ -44,8 +49,14 @@ cpp %>% transmute(year = Year,
       tau_all_kg = sum(all_kg),
       mu_all_cnt = tau_all_cnt/N,
       mu_all_kg = tau_all_kg/N, 
-      var_all_cnt = sum((all_cnt - mu_all_cnt)^2)/N,
-      var_all_kg = sum((all_kg - mu_all_kg)^2)/N )  -> all_bySite
+      var_all_cnt = sum((all_cnt - mu_all_cnt)^2)/(N-1),
+      var_all_kg = sum((all_kg - mu_all_kg)^2)/(N-1),
+      sd_all_cnt = var_all_cnt^.5,
+      sd_all_kg = var_all_kg^.5,
+      se_all_cnt = sd_all_cnt/mu_all_cnt,
+      se_all_kg = sd_all_kg/mu_all_kg,
+      cv_all_cnt = 100* sd_all_cnt/mu_all_cnt,
+      cv_all_kg = 100* sd_all_kg/mu_all_kg) -> all_bySite
 
 ## LARGES ----
   # bySite 
@@ -65,22 +76,31 @@ cpp %>% transmute(year = Year,
         var_mu_lrg_cnt =(var_rh_cnt/n), # fpc goes here
         var_mu_lrg_kg = (var_rh_kg/n), # fpc goes here 
         var_tau_lrg_cnt = var_mu_lrg_cnt * N^2,
-        var_tau_lrg_kg = var_mu_lrg_kg * N^2, 
-        cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg) -> large_bySite           
+        var_tau_lrg_kg = var_mu_lrg_kg * N^2,
+        cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg, 
+        cv_lrg_cnt = 100 * (var_rh_cnt^.5)/mu_lrg_cnt) -> large_bySite           
   
   #byYear 
     large_bySite %>% filter (Site != "11") %>% group_by (year) %>% 
       summarise (
+        n = sum(n),
         N = sum(N),
         tau_lrg_cnt = sum(tau_lrg_cnt),
         tau_lrg_kg = sum(tau_lrg_kg),
         mu_lrg_cnt = tau_lrg_cnt / N,
         mu_lrg_kg  = tau_lrg_kg / N, 
+        var_rh_cnt = sum(var_rh_cnt),
+        var_rh_kg = sum(var_rh_kg),
         var_tau_lrg_cnt = sum(var_tau_lrg_cnt), 
         var_tau_lrg_kg  = sum(var_tau_lrg_kg), 
         var_mu_lrg_cnt = var_tau_lrg_cnt/(N^2),
         var_mu_lrg_kg  = var_tau_lrg_kg/(N^2), 
-        cv_lrg_kg = 100*(sum(var_rh_kg)^.5)/mu_lrg_kg) -> large_byYear  # cv form might not be quite right
+        se_lrg_kg = var_rh_kg / mu_lrg_kg, 
+        se_lrg_cnt = var_rh_cnt / mu_lrg_cnt, 
+        cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg, 
+        cv_lrg_cnt = 100* (var_rh_cnt^.5)/mu_lrg_cnt) -> large_byYear  # cv and se form might not be quite right
+    
+    
 ###############################################################################################
 ## errror checking.  compare to old output  Not Complete----
     options(scipen = 999)
