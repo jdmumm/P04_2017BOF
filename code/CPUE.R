@@ -11,8 +11,9 @@ cpp <- read.csv('data/CPP_lessSamps_d.csv') # _lessSamps is from temporaily corr
   # _d is same as b, after editing 2011 (removed cc recs wtih 0 count and weight - this shouldn't have made a dif).  More importantly i don't think _b fully removed
         #estimating blank weights from CPP_2.  Fixed here for _d.   
         # Plan to use _d.  ALLs - both tau and mu match old query for all years rounded to nearest .1 %.   Large Tau and Mu are < .7% dif for all years 
-        
-#rename vars 
+ read.csv('data/SiteStatArea_LUT.csv')  %>% transmute (Site = as.factor(SiteNum), Area = ShrimpArea) -> area
+
+ #rename vars 
 cpp %>% transmute(year = Year, 
                  Event = EVENT_ID, 
                  Site = as.factor(SITE_ID), 
@@ -24,6 +25,7 @@ cpp %>% transmute(year = Year,
                  lrg_cnt = lrg_Cnt,
                  lrg_kg = lrg_Kg) -> cpp
 
+left_join(cpp, area) -> cpp
 ## ALLS ----
   #survey-wide 
   cpp %>% filter (Site != "11") %>% group_by(year) %>% 
@@ -44,6 +46,7 @@ cpp %>% transmute(year = Year,
   #bySite
   cpp %>% group_by(year, Site) %>% 
     summarise ( 
+      Area = first(Area), 
       N = n(),
       tau_all_cnt = sum(all_cnt), 
       tau_all_kg = sum(all_kg),
@@ -57,12 +60,29 @@ cpp %>% transmute(year = Year,
       se_all_kg = sd_all_kg/mu_all_kg,
       cv_all_cnt = 100* sd_all_cnt/mu_all_cnt,
       cv_all_kg = 100* sd_all_kg/mu_all_kg) -> all_bySite
-
+  #byArea
+    cpp %>% filter (Site != 11) %>% group_by(year, Area) %>% 
+    summarise ( 
+      N = n(),
+      tau_all_cnt = sum(all_cnt), 
+      tau_all_kg = sum(all_kg),
+      mu_all_cnt = tau_all_cnt/N,
+      mu_all_kg = tau_all_kg/N, 
+      var_all_cnt = sum((all_cnt - mu_all_cnt)^2)/(N-1),
+      var_all_kg = sum((all_kg - mu_all_kg)^2)/(N-1),
+      sd_all_cnt = var_all_cnt^.5,
+      sd_all_kg = var_all_kg^.5,
+      se_all_cnt = sd_all_cnt/mu_all_cnt,
+      se_all_kg = sd_all_kg/mu_all_kg,
+      cv_all_cnt = 100* sd_all_cnt/mu_all_cnt,
+      cv_all_kg = 100* sd_all_kg/mu_all_kg) -> all_byArea
+  
 ## LARGES ----
   # bySite 
-    all_bySite %>% select(year, Site, N, mu_all_cnt, mu_all_kg) %>% right_join(cpp) %>% # join site-level stats to CPP
+    all_bySite %>% select(year, Site, Area, N, mu_all_cnt, mu_all_kg) %>% right_join(cpp) %>% # join site-level stats to CPP
     filter (Sample == "Sample") %>% group_by(year, Site) %>% 
       summarise ( 
+        Area = first(Area),
         n = n(),
         N = first(N),
         rh_cnt = sum(lrg_cnt, na.rm = T)/sum(all_cnt, na.rm = T), 
@@ -79,7 +99,6 @@ cpp %>% transmute(year = Year,
         var_tau_lrg_kg = var_mu_lrg_kg * N^2,
         cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg, 
         cv_lrg_cnt = 100 * (var_rh_cnt^.5)/mu_lrg_cnt) -> large_bySite           
-  
   #byYear 
     large_bySite %>% filter (Site != "11") %>% group_by (year) %>% 
       summarise (
@@ -99,6 +118,25 @@ cpp %>% transmute(year = Year,
         se_lrg_cnt = var_rh_cnt / mu_lrg_cnt, 
         cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg, 
         cv_lrg_cnt = 100* (var_rh_cnt^.5)/mu_lrg_cnt) -> large_byYear  # cv and se form might not be quite right
+    #byArea 
+    large_bySite %>% filter (Site != "11") %>% group_by (year,Area) %>% 
+      summarise (
+        n = sum(n),
+        N = sum(N),
+        tau_lrg_cnt = sum(tau_lrg_cnt),
+        tau_lrg_kg = sum(tau_lrg_kg),
+        mu_lrg_cnt = tau_lrg_cnt / N,
+        mu_lrg_kg  = tau_lrg_kg / N, 
+        var_rh_cnt = sum(var_rh_cnt),
+        var_rh_kg = sum(var_rh_kg),
+        var_tau_lrg_cnt = sum(var_tau_lrg_cnt), 
+        var_tau_lrg_kg  = sum(var_tau_lrg_kg), 
+        var_mu_lrg_cnt = var_tau_lrg_cnt/(N^2),
+        var_mu_lrg_kg  = var_tau_lrg_kg/(N^2), 
+        se_lrg_kg = var_rh_kg / mu_lrg_kg, 
+        se_lrg_cnt = var_rh_cnt / mu_lrg_cnt, 
+        cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg, 
+        cv_lrg_cnt = 100* (var_rh_cnt^.5)/mu_lrg_cnt) -> large_byArea  # cv and se form might not be quite right
     
     
 ###############################################################################################
