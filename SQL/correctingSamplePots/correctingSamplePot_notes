@@ -1,7 +1,0 @@
-This set of queries was used to to correct the Sample Pot designation on pot performance, temporarily in the database. 
-It sets those pots with shrimp on catchComp but no lengths to prevSample. 
-Then CPP sql set run to output "CPP_lessSamps.csv".
-
-When using CPP_lessSamps.sql, new query output matchs previous (<.5% differnce for all years - CPUE large by wt)
-
-Then latter 171016, temporarily removed rounding from cpp_6 and populate blank counts from 2 to create cpp_lessSamps_b
