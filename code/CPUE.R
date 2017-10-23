@@ -93,8 +93,8 @@ left_join(cpp, area) -> cpp
         tau_lrg_kg =  mu_lrg_kg * N, 
         var_rh_cnt = sum(((lrg_cnt - rh_cnt*all_cnt)^2), na.rm = T)/(n-1),
         var_rh_kg  = sum(((lrg_kg - rh_kg*all_kg)^2), na.rm = T)/(n-1), 
-        var_mu_lrg_cnt =(var_rh_cnt/n), # fpc goes here
-        var_mu_lrg_kg = (var_rh_kg/n), # fpc goes here 
+        var_mu_lrg_cnt =(var_rh_cnt/n), # fpc would go here
+        var_mu_lrg_kg = (var_rh_kg/n), # fpc would go here 
         var_tau_lrg_cnt = var_mu_lrg_cnt * N^2,
         var_tau_lrg_kg = var_mu_lrg_kg * N^2,
         cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg, 
@@ -117,8 +117,8 @@ left_join(cpp, area) -> cpp
         se_lrg_kg = (var_rh_kg^.5) / (n^.5), 
         se_lrg_cnt = (var_rh_cnt^.5) / (n^.5), 
         cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg, 
-        cv_lrg_cnt = 100* (var_rh_cnt^.5)/mu_lrg_cnt) -> large_byYear  # cv and se form might not be quite right
-    #byArea 
+        cv_lrg_cnt = 100* (var_rh_cnt^.5)/mu_lrg_cnt) -> large_byYear  
+    
     large_bySite %>% filter (Site != "11") %>% group_by (year,Area) %>% 
       summarise (
         n = sum(n),
@@ -136,11 +136,11 @@ left_join(cpp, area) -> cpp
         se_lrg_kg = (var_rh_kg^.5) / (n^.5), 
         se_lrg_cnt = (var_rh_cnt^.5) / (n^.5), 
         cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg, 
-        cv_lrg_cnt = 100* (var_rh_cnt^.5)/mu_lrg_cnt) -> large_byArea  # cv and se form might not be quite right
+        cv_lrg_cnt = 100* (var_rh_cnt^.5)/mu_lrg_cnt) -> large_byArea  
     
     
 ###############################################################################################
-## errror checking.  compare to old output  Not Complete----
+## errror checking.  compare to old output----
     options(scipen = 999)
     
     # ALLS      
