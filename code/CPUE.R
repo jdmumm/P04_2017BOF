@@ -186,7 +186,7 @@ left_join(cpp, area) -> cpp
                     tau_lrg_kg = Est_Wt_Large, 
                     mu_lrg_cnt = CPUE_Large_Count,
                     mu_lrg_kg = CPUE_Large_KG) -> o_l
-    large_byYear[,1:6] -> n_l 
+    large_byYear[,c(1,3:7)] -> n_l 
     o_l[,order(names(o_l))] -> o_l
     n_l[,order(names(n_l))] -> n_l 
     
