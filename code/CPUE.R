@@ -39,8 +39,8 @@ left_join(cpp, area) -> cpp
       var_all_kg = sum((all_kg - mu_all_kg)^2)/(N-1) ,
       sd_all_cnt = var_all_cnt^.5,
       sd_all_kg = var_all_kg^.5,
-      se_all_cnt = sd_all_cnt/mu_all_cnt,
-      se_all_kg = sd_all_kg/mu_all_kg,
+      se_all_cnt = sd_all_cnt/(N^.5),
+      se_all_kg = sd_all_kg/(N^.5),
       cv_all_cnt = 100* sd_all_cnt/mu_all_cnt,
       cv_all_kg = 100* sd_all_kg/mu_all_kg) -> all_byYear
   #bySite
@@ -56,8 +56,8 @@ left_join(cpp, area) -> cpp
       var_all_kg = sum((all_kg - mu_all_kg)^2)/(N-1),
       sd_all_cnt = var_all_cnt^.5,
       sd_all_kg = var_all_kg^.5,
-      se_all_cnt = sd_all_cnt/mu_all_cnt,
-      se_all_kg = sd_all_kg/mu_all_kg,
+      se_all_cnt = sd_all_cnt/(N^.5),
+      se_all_kg = sd_all_kg/(N^.5),
       cv_all_cnt = 100* sd_all_cnt/mu_all_cnt,
       cv_all_kg = 100* sd_all_kg/mu_all_kg) -> all_bySite
   #byArea
@@ -72,8 +72,8 @@ left_join(cpp, area) -> cpp
       var_all_kg = sum((all_kg - mu_all_kg)^2)/(N-1),
       sd_all_cnt = var_all_cnt^.5,
       sd_all_kg = var_all_kg^.5,
-      se_all_cnt = sd_all_cnt/mu_all_cnt,
-      se_all_kg = sd_all_kg/mu_all_kg,
+      se_all_cnt = sd_all_cnt/(N^.5),
+      se_all_kg = sd_all_kg/(N^.5),
       cv_all_cnt = 100* sd_all_cnt/mu_all_cnt,
       cv_all_kg = 100* sd_all_kg/mu_all_kg) -> all_byArea
   
@@ -114,8 +114,8 @@ left_join(cpp, area) -> cpp
         var_tau_lrg_kg  = sum(var_tau_lrg_kg), 
         var_mu_lrg_cnt = var_tau_lrg_cnt/(N^2),
         var_mu_lrg_kg  = var_tau_lrg_kg/(N^2), 
-        se_lrg_kg = var_rh_kg / mu_lrg_kg, 
-        se_lrg_cnt = var_rh_cnt / mu_lrg_cnt, 
+        se_lrg_kg = (var_rh_kg^.5) / (n^.5), 
+        se_lrg_cnt = (var_rh_cnt^.5) / (n^.5), 
         cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg, 
         cv_lrg_cnt = 100* (var_rh_cnt^.5)/mu_lrg_cnt) -> large_byYear  # cv and se form might not be quite right
     #byArea 
@@ -131,10 +131,10 @@ left_join(cpp, area) -> cpp
         var_rh_kg = sum(var_rh_kg),
         var_tau_lrg_cnt = sum(var_tau_lrg_cnt), 
         var_tau_lrg_kg  = sum(var_tau_lrg_kg), 
-        var_mu_lrg_cnt = var_tau_lrg_cnt/(N^2),
-        var_mu_lrg_kg  = var_tau_lrg_kg/(N^2), 
-        se_lrg_kg = var_rh_kg / mu_lrg_kg, 
-        se_lrg_cnt = var_rh_cnt / mu_lrg_cnt, 
+        var_mu_lrg_cnt = var_tau_lrg_cnt/(n^2),
+        var_mu_lrg_kg  = var_tau_lrg_kg/(n^2), 
+        se_lrg_kg = (var_rh_kg^.5) / (n^.5), 
+        se_lrg_cnt = (var_rh_cnt^.5) / (n^.5), 
         cv_lrg_kg = 100* (var_rh_kg^.5)/mu_lrg_kg, 
         cv_lrg_cnt = 100* (var_rh_cnt^.5)/mu_lrg_cnt) -> large_byArea  # cv and se form might not be quite right
     
