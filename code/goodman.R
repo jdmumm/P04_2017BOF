@@ -126,7 +126,7 @@ left_join(cpp, area) -> cpp
     
         
 ###############################################################################################
-## errror checking.  compare to old output----
+## errror checking.  compare to old output  (this copied from CPUE.r and probably won't run exactly as is since  above modified. ----
     options(scipen = 999)
     
     # ALLS      
