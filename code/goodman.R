@@ -86,7 +86,8 @@ left_join(cpp, area) -> cpp
         r_var = var(r_kg, na.rm = T),
         mu_lrg_kg  = r_bar * first(mu_all_kg),
         tau_lrg_kg =  mu_lrg_kg * N, 
-        var_mu_lrg_kg = (mu_all_kg^2)*r_var + var_all_kg*(r_bar^2) - r_var*var_all_kg,  
+        var_lrg_kg = (mu_all_kg^2)*r_var + var_all_kg*(r_bar^2) - r_var*var_all_kg,  
+        var_mu_lrg_kg = var_lrg_kg/n,
         var_tau_lrg_kg = var_mu_lrg_kg * N^2) -> large_bySite           
     #byYear 
     large_bySite %>% filter (Site != "11") %>% group_by (year) %>% 
@@ -97,7 +98,7 @@ left_join(cpp, area) -> cpp
         mu_lrg_kg  = tau_lrg_kg / N, 
         var_tau_lrg_kg  = sum(var_tau_lrg_kg, na.rm = T), # Na.rm added as bandaid for 2011 site 5 no shrimp in cpp.  Edit data eventually. 
         var_mu_lrg_kg = sum(var_mu_lrg_kg, na.rm = T), 
-        se_lrg_kg = (var_mu_lrg_kg^.5) / (n^.5),  # is this correct?
+        se_lrg_kg = (var_mu_lrg_kg^.5),  # is this correct?
         cv_lrg_kg = 100* (var_mu_lrg_kg^.5) / mu_lrg_kg) -> large_byYear  
     #byArea
     large_bySite %>% filter (Site != "11") %>% group_by (year, Area) %>% 
@@ -108,15 +109,15 @@ left_join(cpp, area) -> cpp
         mu_lrg_kg  = tau_lrg_kg / N, 
         var_tau_lrg_kg  = sum(var_tau_lrg_kg, na.rm = T), # Na.rm added as bandaid for 2011 site 5 no shrimp in cpp.  Edit data eventually. 
         var_mu_lrg_kg = sum(var_mu_lrg_kg, na.rm = T), 
-        se_lrg_kg = (var_mu_lrg_kg^.5) / (n^.5),  # is this correct?
+        se_lrg_kg = (var_mu_lrg_kg^.5) ,  # is this correct?
         cv_lrg_kg = 100* (var_mu_lrg_kg^.5) / mu_lrg_kg) -> large_byArea
 
 #select, join and Write ----
   all_byYear %>% left_join (large_byYear) %>% select(year, N, n, var_all_kg, se_all_kg, cv_all_kg, var_tau_lrg_kg, se_lrg_kg, cv_lrg_kg)-> var_byYear
   all_byArea %>% left_join (large_byArea) %>% select(year, Area, N, n, var_all_kg, se_all_kg, cv_all_kg, var_tau_lrg_kg, se_lrg_kg, cv_lrg_kg)-> var_byArea
   
-  #write.csv(var_byYear, "./output/var_byYear.csv", row.names = F)  
-  #write.csv(var_byArea, "./output/var_byArea.csv", row.names = F)    
+  write.csv(var_byYear, "./output/var_byYear.csv", row.names = F)  
+  write.csv(var_byArea, "./output/var_byArea.csv", row.names = F)    
     
     
     
