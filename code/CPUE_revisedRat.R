@@ -1,6 +1,7 @@
 ## CPUE ####
 # Calculates CATCH and CPUE for both Large and Alls from PWS spot shrimp pot survey. Used for to calc variances for 2017 BOF report. 
 #Point ests used in report are from static SS output from old queries.
+## VARs in report were output from this scripts 171103
 # Josh Mumm 
 
 ## PREP ----
