@@ -97,13 +97,12 @@ left_join(cpp, area) -> cpp
         n = n(),
         N = first(N),
         mu_all_kg = first(mu_all_kg),
-        var_all_kg = first(var_all_kg),
         r_bar = sum(lrg_kg, na.rm = T)/sum(all_kg, na.rm = T),
         r_var = sum((all_kg - r_bar*lrg_kg)^2, na.rm = T)/ (n-1),
-        mu_lrg_kg  = r_bar * first(mu_all_kg),
+        mu_lrg_kg  = r_bar * mu_all_kg,
         tau_lrg_kg =  mu_lrg_kg * N, 
-        var_mu_lrg_kg = r_var/n, # fpc would go here 
-        var_tau_lrg_kg = var_mu_lrg_kg * N^2) -> large_bySite           
+        var_mu_lrg_kg = r_var/n,   # fpc would go here
+        var_tau_lrg_kg = var_mu_lrg_kg * N^2) -> large_bySite      
     
     #byYear 
     large_bySite %>% filter (Site != "11") %>% group_by (year) %>% 
@@ -113,24 +112,23 @@ left_join(cpp, area) -> cpp
         tau_lrg_kg = sum(tau_lrg_kg),
         mu_lrg_kg  = tau_lrg_kg / N, 
         var_tau_lrg_kg  = sum(var_tau_lrg_kg, na.rm = T), # Na.rm added as bandaid for 2011 site 5 no shrimp in cpp.  Edit data eventually. 
-        var_mu_lrg_kg = sum(var_mu_lrg_kg, na.rm = T), 
-        se_lrg_kg = (var_mu_lrg_kg^.5),  
-        cv_lrg_kg = 100* (var_mu_lrg_kg^.5) / mu_lrg_kg) -> large_byYear  
-    #byArea
-    large_bySite %>% filter (Site != "11") %>% group_by (year, Area) %>% 
+        var_mu_lrg_kg = var_tau_lrg_kg/(N^2) ,
+        se_lrg_kg = (var_mu_lrg_kg^.5)) -> large_byYear  
+   
+      #byArea
+    large_bySite %>% filter (Site != "11") %>% group_by (year,Area) %>% 
       summarise (
         n = sum(n),
         N = sum(N),
         tau_lrg_kg = sum(tau_lrg_kg),
         mu_lrg_kg  = tau_lrg_kg / N, 
         var_tau_lrg_kg  = sum(var_tau_lrg_kg, na.rm = T), # Na.rm added as bandaid for 2011 site 5 no shrimp in cpp.  Edit data eventually. 
-        var_mu_lrg_kg = sum(var_mu_lrg_kg, na.rm = T), 
-        se_lrg_kg = (var_mu_lrg_kg^.5) , 
-        cv_lrg_kg = 100* (var_mu_lrg_kg^.5) / mu_lrg_kg) -> large_byArea
+        var_mu_lrg_kg = var_tau_lrg_kg/(N^2) ,
+        se_lrg_kg = (var_mu_lrg_kg^.5)) -> large_byArea
 
 #select, join and Write ----
-  all_byYear %>% left_join (large_byYear) %>% select(year, N, n, var_all_kg, se_all_kg, cv_all_kg, var_tau_lrg_kg, se_lrg_kg, cv_lrg_kg)-> var_byYear
-  all_byArea %>% left_join (large_byArea) %>% select(year, Area, N, n, var_all_kg, se_all_kg, cv_all_kg, var_tau_lrg_kg, se_lrg_kg, cv_lrg_kg)-> var_byArea
+  all_byYear %>% left_join (large_byYear) %>% select(year, N, n, var_all_kg, se_all_kg, var_tau_lrg_kg, se_lrg_kg)-> var_byYear
+  all_byArea %>% left_join (large_byArea) %>% select(year, Area, N, n, var_all_kg, se_all_kg, var_tau_lrg_kg, se_lrg_kg)-> var_byArea
   
   #write.csv(var_byYear, "./output/var_byYear.csv", row.names = F)  
   #write.csv(var_byArea, "./output/var_byArea.csv", row.names = F)    
