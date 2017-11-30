@@ -76,19 +76,21 @@ left_join(cpp, area) -> cpp
   
 ## LARGES ----
   # bySite 
-    all_bySite %>% select(year, Site, Area, N, mu_all_cnt, mu_all_kg, var_all_kg) %>% right_join(cpp) %>% # join site-level stats to CPP
+    all_bySite %>% select(year, Site, Area, N, mu_all_cnt, mu_all_kg, tau_all_kg, var_all_kg) %>% right_join(cpp) %>% # join site-level stats to CPP
       filter (Sample == "Sample") %>% group_by(year, Site) %>% 
       summarise ( 
         Area = first(Area),
         n = n(),
         N = first(N),
         mu_all_kg = first(mu_all_kg),
+        var_all_kg = first(var_all_kg),
+        tau_all_kg = first(tau_all_kg),
         r_bar = sum(lrg_kg, na.rm = T)/sum(all_kg, na.rm = T),
         s2_h = sum((all_kg - r_bar*lrg_kg)^2, na.rm = T)/ (n-1),
-        r_var = (s2_h/n) * (1/mu_all_kg)^2, #xz has fpc here
+        r_var = (s2_h/n) * (1/mu_all_kg)^2 * (N-n)/N, #xz has fpc here
         mu_lrg_kg  = r_bar * mu_all_kg,
         tau_lrg_kg =  mu_lrg_kg * N, 
-        var_tau_lrg_kg = (tau_lrg_kg^2)*r_var, 
+        var_tau_lrg_kg = (tau_all_kg^2)*r_var + (r_bar^2)*var_all_kg - r_var*var_all_kg, 
         var_mu_lrg_kg = var_tau_lrg_kg/(N^2) ) -> large_bySite      
     
     #byYear 
