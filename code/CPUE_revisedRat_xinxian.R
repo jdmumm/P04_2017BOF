@@ -39,7 +39,7 @@ left_join(cpp, area) -> cpp
       mu_all_cnt = tau_all_cnt/N,
       mu_all_kg = tau_all_kg/N,  
       var_all_cnt = sum((all_cnt - mu_all_cnt)^2)/(N-1), # n-1 since treating as sample not pop now(10/21).  Leaving N as N, rather than  n for now. 
-      var_all_kg = sum((all_kg - mu_all_kg)^2)/(N-1) ,
+      var_all_kg = sum((all_kg - mu_all_kg)^2)/(N-1) , # xz has N insteasd of N-1
       se_all_cnt = (var_all_cnt^.5)/(N^.5),
       se_all_kg = (var_all_kg^.5)/(N^.5),
       cv_all_cnt = 100* (var_all_cnt^.5)/mu_all_cnt,
@@ -82,15 +82,15 @@ left_join(cpp, area) -> cpp
         Area = first(Area),
         n = n(),
         N = first(N),
-        mu_all_kg = first(mu_all_kg),
-        var_all_kg = first(var_all_kg),
-        tau_all_kg = first(tau_all_kg),
+        mu_hat_all_kg = sum(all_kg, na.rm = T)/n,
+        var_all_kg = first(var_all_kg), # xz uses N instead od N-1 for num of var_all_kg
+        tau_all_kg = first(tau_all_kg), 
         r_bar = sum(lrg_kg, na.rm = T)/sum(all_kg, na.rm = T),
-        s2_h = sum((all_kg - r_bar*lrg_kg)^2, na.rm = T)/ (n-1),
-        r_var = (s2_h/n) * (1/mu_all_kg)^2 * (N-n)/N, #xz has fpc here
-        mu_lrg_kg  = r_bar * mu_all_kg,
+        s2_h = sum((lrg_kg - r_bar*all_kg)^2, na.rm = T)/ (n-1),
+        r_var = (s2_h/n) * (1/mu_hat_all_kg)^2 * (N-n)/N, 
+        mu_lrg_kg  = r_bar * first(mu_all_kg),
         tau_lrg_kg =  mu_lrg_kg * N, 
-        var_tau_lrg_kg = (tau_all_kg^2)*r_var + (r_bar^2)*var_all_kg - r_var*var_all_kg, 
+        var_tau_lrg_kg = (tau_all_kg^2)*r_var + (r_bar^2)*var_all_kg - r_var*var_all_kg, # xz uses N instead od N-1 for num of var_all_kg
         var_mu_lrg_kg = var_tau_lrg_kg/(N^2) ) -> large_bySite      
     
     #byYear 
@@ -119,8 +119,8 @@ left_join(cpp, area) -> cpp
   all_byYear %>% left_join (large_byYear) %>% select(year, N, n, var_all_kg, se_all_kg, var_tau_lrg_kg, se_lrg_kg)-> var_byYear
   all_byArea %>% left_join (large_byArea) %>% select(year, Area, N, n, var_all_kg, se_all_kg, var_tau_lrg_kg, se_lrg_kg)-> var_byArea
   
-  #write.csv(var_byYear, "./output/var_byYear_xz.csv", row.names = F)  
-  #write.csv(var_byArea, "./output/var_byArea_xz.csv", row.names = F)    
+  write.csv(var_byYear, "./output/var_byYear_xz.csv", row.names = F)  
+  write.csv(var_byArea, "./output/var_byArea_xz.csv", row.names = F)    
     
     
     
