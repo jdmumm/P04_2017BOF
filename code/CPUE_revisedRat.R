@@ -99,7 +99,7 @@ left_join(cpp, area) -> cpp
         N = first(N),
         mu_all_kg = first(mu_all_kg),
         r_bar = sum(lrg_kg, na.rm = T)/sum(all_kg, na.rm = T),
-        r_var = sum((all_kg - r_bar*lrg_kg)^2, na.rm = T)/ (n-1),
+        r_var = sum((lrg_kg - r_bar*all_kg)^2, na.rm = T)/ (n-1),
         mu_lrg_kg  = r_bar * mu_all_kg,
         tau_lrg_kg =  mu_lrg_kg * N, 
         var_mu_lrg_kg = r_var/n,   # fpc would go here
