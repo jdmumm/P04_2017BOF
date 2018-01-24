@@ -31,7 +31,7 @@ read.csv('data/SiteStatArea_LUT.csv')  %>% transmute (Site = as.factor(SiteNum),
 left_join(cpp, area) -> cpp
 ## ALLS ----
   #survey-wide 
-  cpp %>% filter (Site != "11") %>% group_by(year) %>% 
+  cpp %>% filter (Site %in% c("1","2","3","4","5","7","8") & Station %in% c("A","B","C","D")) %>% group_by(year) %>% # core filter
     summarise ( 
       N = n(),
       tau_all_cnt = sum(all_cnt), 
@@ -45,7 +45,7 @@ left_join(cpp, area) -> cpp
       cv_all_cnt = 100* (var_all_cnt^.5)/mu_all_cnt,
       cv_all_kg = 100* (var_all_kg^.5)/mu_all_kg) -> all_byYear
   #bySite
-  cpp %>% group_by(year, Site) %>% 
+  cpp %>% filter (Station %in% c("A","B","C","D")) %>% group_by(year, Site) %>% # core filter
     summarise ( 
       Area = first(Area), 
       N = n(),
@@ -60,7 +60,7 @@ left_join(cpp, area) -> cpp
       cv_all_cnt = 100* (var_all_cnt^.5)/mu_all_cnt,
       cv_all_kg = 100* (var_all_kg^.5)/mu_all_kg) -> all_bySite
   #byArea
-    cpp %>% filter (Site != 11) %>% group_by(year, Area) %>% 
+    cpp %>% filter (Site %in% c("1","2","3","4","5","7","8") & Station %in% c("A","B","C","D")) %>% group_by(year, Area) %>%  # core filter
     summarise ( 
       N = n(),
       tau_all_cnt = sum(all_cnt), 
@@ -119,8 +119,8 @@ left_join(cpp, area) -> cpp
   all_byYear %>% left_join (large_byYear) %>% select(year, N, n, var_all_kg, se_all_kg, var_tau_lrg_kg, se_lrg_kg)-> var_byYear
   all_byArea %>% left_join (large_byArea) %>% select(year, Area, N, n, var_all_kg, se_all_kg, var_tau_lrg_kg, se_lrg_kg)-> var_byArea
   
-  write.csv(var_byYear, "./output/var_byYear_xz_w17.csv", row.names = F)  
-  write.csv(var_byArea, "./output/var_byArea_xz_w17.csv", row.names = F)    
+  write.csv(var_byYear, "./output/var_byYear_xz_w17_core.csv", row.names = F)  
+  write.csv(var_byArea, "./output/var_byArea_xz_w17_core.csv", row.names = F)    
     
     
     
