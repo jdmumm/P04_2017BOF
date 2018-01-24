@@ -94,7 +94,7 @@ left_join(cpp, area) -> cpp
         var_mu_lrg_kg = var_tau_lrg_kg/(N^2) ) -> large_bySite      
     
     #byYear 
-    large_bySite %>% filter (Site != "11") %>% group_by (year) %>% 
+    large_bySite %>% filter (Site  %in% c("1","2","3","4","5","7","8")) %>% group_by (year) %>% 
       summarise (
         n = sum(n),
         N = sum(N),
@@ -105,7 +105,7 @@ left_join(cpp, area) -> cpp
         se_lrg_kg = (var_mu_lrg_kg^.5)) -> large_byYear  
    
       #byArea
-    large_bySite %>% filter (Site != "11") %>% group_by (year,Area) %>% 
+    large_bySite %>% filter (Site  %in% c("1","2","3","4","5","7","8")) %>% group_by (year,Area) %>% 
       summarise (
         n = sum(n),
         N = sum(N),
