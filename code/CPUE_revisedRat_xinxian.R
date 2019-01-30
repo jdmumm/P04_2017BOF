@@ -7,7 +7,7 @@
 
 ## PREP ----
 library(tidyverse)
-cpp <- read.csv('data/CPP_lessSamps_d.csv') 
+cpp <- read.csv('data/CPP_lessSamps_d_190130.csv') # changed to cpp w 2018 in 2018 branch on 190130
   # _lessSamps is from temporaily correcting sample pot indicator on potperformance for those pots labeled sample but w/out any awls
   # lessSamps_d is is from modifying cpp sqls to remove rounding in step 6 and remove pop blank weight from count in 2. 
   # Also after editing 2011 DB (removed cc recs wtih 0 count and weight - this shouldn't have made a dif).  
@@ -15,7 +15,7 @@ cpp <- read.csv('data/CPP_lessSamps_d.csv')
 read.csv('data/SiteStatArea_LUT.csv')  %>% transmute (Site = as.factor(SiteNum), Area = ShrimpArea) -> area
 
 #rename vars and calc r 
-  cpp %>% transmute(year = Year, 
+  cpp %>% transmute(year = YEAR, 
                  Event = EVENT_ID, 
                  Site = as.factor(SITE_ID), 
                  Station = STATION, 
@@ -119,8 +119,8 @@ left_join(cpp, area) -> cpp
   all_byYear %>% left_join (large_byYear) %>% select(year, N, n, var_all_kg, se_all_kg, var_tau_lrg_kg, se_lrg_kg)-> var_byYear
   all_byArea %>% left_join (large_byArea) %>% select(year, Area, N, n, var_all_kg, se_all_kg, var_tau_lrg_kg, se_lrg_kg)-> var_byArea
   
-  write.csv(var_byYear, "./output/var_byYear_xz.csv", row.names = F)  
-  write.csv(var_byArea, "./output/var_byArea_xz.csv", row.names = F)    
+  write.csv(var_byYear, "./output/var_byYear_xz_w18.csv", row.names = F)  
+  write.csv(var_byArea, "./output/var_byArea_xz_w18.csv", row.names = F)    
     
     
     
