@@ -27,7 +27,7 @@ CPP_1.POT_ID AS POT_ID,
 	/
 	DSum("[FREQUENCY]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
 	AND [POT_ID] = '" & [POT_ID] & "'
-	AND FK_SEK_CODE IN ('1','2','3','9')")
+	AND FK_SEX_CODE IN ('1','2','3','9')")
 	AS propFemCnt_awl,
 	
   NZ(DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
@@ -36,7 +36,7 @@ CPP_1.POT_ID AS POT_ID,
 	/
 	DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
 	AND [POT_ID] = '" & [POT_ID] & "'
-	AND FK_SEK_CODE IN ('1','2','3','9')")
+	AND FK_SEX_CODE IN ('1','2','3','9')")
 	AS propFemWt_awl	
 	
 FROM CPP_1
