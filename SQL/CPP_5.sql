@@ -19,8 +19,26 @@ CPP_1.POT_ID AS POT_ID,
 	DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
 	AND [POT_ID] = '" & [POT_ID] & "'
 	AND CARAPACE_LENGTH_MM >= -1")
-	AS propLgWt_awl	
+	AS propLgWt_awl,	
 
+  NZ(DSum("[FREQUENCY]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
+	AND [POT_ID] = '" & [POT_ID] & "'
+	AND FK_SEX_CODE = '2'"),0)
+	/
+	DSum("[FREQUENCY]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
+	AND [POT_ID] = '" & [POT_ID] & "'
+	AND FK_SEK_CODE IN ('1','2','3','9')")
+	AS propFemCnt_awl,
+	
+  NZ(DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
+	AND [POT_ID] = '" & [POT_ID] & "'
+	AND FK_SEX_CODE = '2'"),0)
+	/
+	DSum("[KG]", "[CPP_4]", "[EVENT_ID] = '" & [EVENT_ID] & "' 
+	AND [POT_ID] = '" & [POT_ID] & "'
+	AND FK_SEK_CODE IN ('1','2','3','9')")
+	AS propFemWt_awl	
+	
 FROM CPP_1
 
 LEFT JOIN
